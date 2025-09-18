@@ -1,9 +1,9 @@
 // src/components/SearchForm.jsx
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import { DataContext } from "../context/DataContext";
 
 export default function SearchForm() {
-  const { filters, setFilters } = useContext(DataContext);
+  const { filters, setFilters, capsules } = useContext(DataContext);
   const [local, setLocal] = useState(filters);
 
   useEffect(() => setLocal(filters), [filters]);
@@ -13,35 +13,46 @@ export default function SearchForm() {
     return () => clearTimeout(t);
   }, [local, setFilters]);
 
+  //  Dynamically extract unique types & statuses from capsules
+  const types = useMemo(() => {
+    return [...new Set(capsules.map((c) => c.type).filter(Boolean))];
+  }, [capsules]);
+
+  const statuses = useMemo(() => {
+    return [...new Set(capsules.map((c) => c.status).filter(Boolean))];
+  }, [capsules]);
+
   return (
     <form className="flex flex-wrap gap-3 items-center py-4">
-      {/* ✅ Capsule Type dropdown */}
+      {/*  Capsule Type dropdown */}
       <select
         value={local.type}
         onChange={(e) => setLocal({ ...local, type: e.target.value })}
         className="border rounded p-2 flex-1 min-w-[150px] bg-gray-900 text-white"
       >
         <option value="">All Types</option>
-        <option value="dragon1">Dragon 1</option>
-        <option value="dragon2">Dragon 2</option>
-        <option value="cargo">Cargo</option>
-        <option value="crew">Crew</option>
+        {types.map((t) => (
+          <option key={t} value={t}>
+            {t}
+          </option>
+        ))}
       </select>
 
-      {/* ✅ Status dropdown */}
+      {/*  Status dropdown */}
       <select
         value={local.status}
         onChange={(e) => setLocal({ ...local, status: e.target.value })}
         className="border rounded p-2 min-w-[120px] bg-gray-900 text-white"
       >
         <option value="">All Status</option>
-        <option value="active">Active</option>
-        <option value="retired">Retired</option>
-        <option value="unknown">Unknown</option>
-        <option value="destroyed">Destroyed</option>
+        {statuses.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
       </select>
 
-      {/* ✅ Launch date picker */}
+      {/*  Launch date picker */}
       <input
         type="date"
         value={local.launch}
