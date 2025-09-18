@@ -2,24 +2,30 @@
 import { useState } from "react";
 import Popup from "./Popup";
 
-export default function DataGrid({ data = [], loading, error }) {
+export default function DataGrid({ data = [], filters = {} }) {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
-  const perPage = 10;
+  const perPage = 5; // always 10 per page
 
-  // pagination
-  const pageCount = Math.max(1, Math.ceil(data.length / perPage));
-  if (page > pageCount) setPage(1);
+  // 🔎 Filter data
+  const filtered = data.filter((c) => {
+    if (filters.type && c.type !== filters.type) return false;
+    if (filters.status && c.status !== filters.status) return false;
+    if (filters.launch) {
+      if (!c.original_launch?.startsWith(filters.launch)) return false;
+    }
+    return true;
+  });
 
-  const pageItems = data.slice((page - 1) * perPage, page * perPage);
+  // 📄 Pagination logic
+  const pageCount = Math.max(1, Math.ceil(filtered.length / perPage));
+  const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
 
-  // loading / error states
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
+  if (page > pageCount) setPage(1); // reset if overflow
 
   return (
     <section style={{ padding: "20px", background: "#0b1120", color: "white" }}>
-      {/* Results Info */}
+      {/* Results info */}
       <div
         style={{
           display: "flex",
@@ -27,13 +33,13 @@ export default function DataGrid({ data = [], loading, error }) {
           marginBottom: "12px",
         }}
       >
-        <p>Showing {data.length} results</p>
+        <p>Showing {filtered.length} results</p>
         <p>
           Page {page} / {pageCount}
         </p>
       </div>
 
-      {/* Data Grid */}
+      {/* Grid */}
       <div
         style={{
           display: "grid",
@@ -41,10 +47,10 @@ export default function DataGrid({ data = [], loading, error }) {
           gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
         }}
       >
-        {pageItems.map((item) => (
+        {pageItems.map((c) => (
           <article
-            key={item.id || item.capsule_serial}
-            onClick={() => setSelected(item)}
+            key={c.id}
+            onClick={() => setSelected(c)}
             style={{
               border: "1px solid #334155",
               borderRadius: "12px",
@@ -60,45 +66,58 @@ export default function DataGrid({ data = [], loading, error }) {
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
           >
             <h4 style={{ fontSize: "18px", marginBottom: "6px" }}>
-              {item.capsule_serial || item.name || "No Title"}
+              {c.capsule_serial}
             </h4>
-            <p>Type: {item.type || "N/A"}</p>
-            <p>Status: {item.status || "N/A"}</p>
+            <p>Type: {c.type}</p>
+            <p>Status: {c.status}</p>
             <p style={{ fontSize: "14px", marginTop: "6px", color: "#94a3b8" }}>
-              {item.original_launch
-                ? new Date(item.original_launch).toLocaleDateString()
-                : item.first_flight
-                ? new Date(item.first_flight).toLocaleDateString()
-                : "No date"}
+              {c.original_launch
+                ? new Date(c.original_launch).toLocaleDateString()
+                : "No launch"}
             </p>
           </article>
         ))}
       </div>
 
-      {/* Pagination Buttons */}
+      {/* Pagination */}
       <div style={{ marginTop: "16px", textAlign: "center" }}>
         <button
-          onClick={() => setPage(page - 1)}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page === 1}
-          style={{ marginRight: "8px" }}
         >
           Prev
         </button>
-        <button onClick={() => setPage(page + 1)} disabled={page === pageCount}>
+
+        {[...Array(pageCount)].map((_, i) => {
+          const pageNum = i + 1;
+          return (
+            <button
+              key={pageNum}
+              onClick={() => setPage(pageNum)}
+              style={{
+                margin: "0 4px",
+                padding: "6px 10px",
+                borderRadius: "6px",
+                background: pageNum === page ? "#3b82f6" : "#1e293b",
+                color: "white",
+                border: "1px solid #334155",
+              }}
+            >
+              {pageNum}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+          disabled={page === pageCount}
+        >
           Next
         </button>
       </div>
 
       {/* Popup */}
-      {selected && (
-        <Popup
-          data={{
-            ...selected,
-            last_updated: new Date().toLocaleString(),
-          }}
-          onClose={() => setSelected(null)}
-        />
-      )}
+      {selected && <Popup data={selected} onClose={() => setSelected(null)} />}
     </section>
   );
 }
