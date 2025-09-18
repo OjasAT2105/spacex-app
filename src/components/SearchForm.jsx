@@ -14,32 +14,48 @@ export default function SearchForm() {
   }, [local, setFilters]);
 
   return (
-    <form className="flex flex-wrap gap-4 items-center py-6 bg-[#111827] rounded-xl px-5 shadow-lg">
-      <input
-        placeholder="Type"
+    <form className="flex flex-wrap gap-3 items-center py-4">
+      {/* ✅ Capsule Type dropdown */}
+      <select
         value={local.type}
         onChange={(e) => setLocal({ ...local, type: e.target.value })}
-        className="flex-1 min-w-[150px] px-3 py-2 rounded-lg bg-[#1f2937] text-white placeholder-gray-400 border border-gray-700 focus:border-indigo-500 focus:ring focus:ring-indigo-500/30 outline-none transition"
-      />
-      <input
-        placeholder="Status"
+        className="border rounded p-2 flex-1 min-w-[150px] bg-gray-900 text-white"
+      >
+        <option value="">All Types</option>
+        <option value="dragon1">Dragon 1</option>
+        <option value="dragon2">Dragon 2</option>
+        <option value="cargo">Cargo</option>
+        <option value="crew">Crew</option>
+      </select>
+
+      {/* ✅ Status dropdown */}
+      <select
         value={local.status}
         onChange={(e) => setLocal({ ...local, status: e.target.value })}
-        className="min-w-[120px] px-3 py-2 rounded-lg bg-[#1f2937] text-white placeholder-gray-400 border border-gray-700 focus:border-indigo-500 focus:ring focus:ring-indigo-500/30 outline-none transition"
-      />
+        className="border rounded p-2 min-w-[120px] bg-gray-900 text-white"
+      >
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="retired">Retired</option>
+        <option value="unknown">Unknown</option>
+        <option value="destroyed">Destroyed</option>
+      </select>
+
+      {/* ✅ Launch date picker */}
       <input
         type="date"
         value={local.launch}
         onChange={(e) => setLocal({ ...local, launch: e.target.value })}
-        className="px-3 py-2 rounded-lg bg-[#1f2937] text-white placeholder-gray-400 border border-gray-700 focus:border-indigo-500 focus:ring focus:ring-indigo-500/30 outline-none transition"
+        className="border rounded p-2 bg-gray-900 text-white"
       />
+
       <button
         type="button"
         onClick={() => {
           setLocal({ type: "", status: "", launch: "" });
           setFilters({ type: "", status: "", launch: "" });
         }}
-        className="ml-auto px-4 py-2 text-sm font-medium rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md hover:from-indigo-600 hover:to-purple-700 transition"
+        className="ml-auto text-sm text-gray-300 hover:text-white"
       >
         Clear
       </button>
