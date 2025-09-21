@@ -2,26 +2,14 @@
 import { useState } from "react";
 import Popup from "./Popup";
 
-export default function DataGrid({ data = [], filters = {} }) {
-  const [page, setPage] = useState(1);
+export default function DataGrid({
+  data = [],
+  total,
+  page,
+  pageCount,
+  onPageChange,
+}) {
   const [selected, setSelected] = useState(null);
-  const perPage = 5; // always 10 per page
-
-  // 🔎 Filter data
-  const filtered = data.filter((c) => {
-    if (filters.type && c.type !== filters.type) return false;
-    if (filters.status && c.status !== filters.status) return false;
-    if (filters.launch) {
-      if (!c.original_launch?.startsWith(filters.launch)) return false;
-    }
-    return true;
-  });
-
-  // 📄 Pagination logic
-  const pageCount = Math.max(1, Math.ceil(filtered.length / perPage));
-  const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
-
-  if (page > pageCount) setPage(1); // reset if overflow
 
   return (
     <section style={{ padding: "20px", background: "#0b1120", color: "white" }}>
@@ -33,7 +21,7 @@ export default function DataGrid({ data = [], filters = {} }) {
           marginBottom: "12px",
         }}
       >
-        <p>Showing {filtered.length} results</p>
+        <p>Showing {total} results</p>
         <p>
           Page {page} / {pageCount}
         </p>
@@ -47,7 +35,7 @@ export default function DataGrid({ data = [], filters = {} }) {
           gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
         }}
       >
-        {pageItems.map((c) => (
+        {data.map((c) => (
           <article
             key={c.id}
             onClick={() => setSelected(c)}
@@ -82,7 +70,7 @@ export default function DataGrid({ data = [], filters = {} }) {
       {/* Pagination */}
       <div style={{ marginTop: "16px", textAlign: "center" }}>
         <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page === 1}
         >
           Prev
@@ -93,7 +81,7 @@ export default function DataGrid({ data = [], filters = {} }) {
           return (
             <button
               key={pageNum}
-              onClick={() => setPage(pageNum)}
+              onClick={() => onPageChange(pageNum)}
               style={{
                 margin: "0 4px",
                 padding: "6px 10px",
@@ -109,7 +97,7 @@ export default function DataGrid({ data = [], filters = {} }) {
         })}
 
         <button
-          onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+          onClick={() => onPageChange(Math.min(pageCount, page + 1))}
           disabled={page === pageCount}
         >
           Next
