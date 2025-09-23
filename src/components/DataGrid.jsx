@@ -72,6 +72,16 @@ export default function DataGrid({
         <button
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page === 1}
+          style={{
+            opacity: page === 1 ? 0.4 : 1,
+            cursor: page === 1 ? "not-allowed" : "pointer",
+            padding: "6px 10px",
+            borderRadius: "6px",
+            background: "#1e293b",
+            color: "white",
+            border: "1px solid #334155",
+            marginRight: "8px",
+          }}
         >
           Prev
         </button>
@@ -99,6 +109,16 @@ export default function DataGrid({
         <button
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}
           disabled={page === pageCount}
+          style={{
+            opacity: page === pageCount ? 0.4 : 1,
+            cursor: page === pageCount ? "not-allowed" : "pointer",
+            padding: "6px 10px",
+            borderRadius: "6px",
+            background: "#1e293b",
+            color: "white",
+            border: "1px solid #334155",
+            marginLeft: "8px",
+          }}
         >
           Next
         </button>
